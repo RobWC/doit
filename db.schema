@@ -1,0 +1,108 @@
+-- Enable Forgien Keys
+PRAGMA foreign_keys = ON;
+
+-- Domains
+-- =================
+-- name - VARCHAR 64
+
+create table domains(name VARCHAR(32));
+
+-- Groups
+-- =================
+-- domain - INTEGER
+-- name - VARCHAR(64)
+
+create table ans_groups(domain INTEGER, 
+  name VARCHAR(64),
+  FOREIGN KEY(domain) REFERENCES domains(rowid));
+
+create index ans_groups_i1 ON ans_groups(domain); 
+
+-- Group_Members
+-- =================
+-- ans_group - INTEGER
+-- host - INTEGER
+
+create table ans_group_members(ans_group INTEGER, 
+  host INTEGER,
+  FOREIGN KEY(ans_group) REFERENCES ans_groups(rowid),
+  FOREIGN KEY(host) REFERENCES hosts(rowid));
+
+create index ans_group_members_i1 ON ans_group_members(ans_group); 
+create index ans_group_members_i2 ON ans_group_members(host); 
+
+-- Hosts
+-- =================
+-- domain - INTEGER
+-- name - VARCHAR 64
+
+create table hosts(domain INTEGER,
+  name VARCHAR(64),
+  FOREIGN KEY(domain) REFERENCES domains(rowid));
+
+create index hosts_i1 ON hosts(domain); 
+
+
+-- Group_Vars
+-- =================
+-- name - VARCHAR 64
+-- value - VARCHAR 128
+-- ans_group - INTEGER
+-- domain - INTEGER
+
+create table ans_group_vars(name VARCHAR(64),
+  value VARCHAR(128),
+  ans_group INTEGER,
+  domain INTEGER,
+  FOREIGN KEY(ans_group) REFERENCES ans_groups(rowid),
+  FOREIGN KEY(domain) REFERENCES domains(rowid));
+
+create index ans_group_vars_i1 ON ans_group_vars(ans_group); 
+create index ans_group_vars_i2 ON ans_group_vars(domain); 
+
+
+-- Host_Vars
+-- =================
+-- name - VARCHAR 64
+-- value - VARCHAR 128
+-- host - INTEGER
+-- domain - INTEGER
+
+create table host_vars(name VARCHAR(64),
+  value VARCHAR(128),
+  host INTEGER,
+  domain INTEGER,
+  FOREIGN KEY(host) REFERENCES hosts(rowid),
+  FOREIGN KEY(domain) REFERENCES domains(rowid));
+
+create index host_vars_i1 ON host_vars(host); 
+create index host_vars_i2 ON host_vars(domain); 
+
+
+-- Roles
+-- =================
+-- domain - INTEGER
+-- name - VARCHAR 64
+
+create table roles(domain INTEGER,
+  name VARCHAR(64),
+  FOREIGN KEY(domain) REFERENCES domains(rowid));
+
+create index roles_i1 ON roles(domain); 
+
+-- Role_Vars
+-- =================
+-- name - VARCHAR 64
+-- value - VARCHAR 128
+-- role - INTEGER
+-- domain - INTEGER
+
+create table role_vars(name VARCHAR(64),
+  value VARCHAR(128),
+  role INTEGER,
+  domain INTEGER,
+  FOREIGN KEY(role) REFERENCES roles(rowid),
+  FOREIGN KEY(domain) REFERENCES domains(rowid));
+
+create index role_vars_i1 ON role_vars(role); 
+create index role_vars_i2 ON role_vars(domain); 

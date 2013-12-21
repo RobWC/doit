@@ -120,27 +120,7 @@ class DOIT(object):
       group_list.append(newGroup)
 
     return group_list
-    #Old
-    cursor = self.db.cursor()
-    cursor.execute("SELECT rowid,name FROM ans_groups WHERE domain = '%d'" % self.domain.id)
-    group_list = []
-    for group in cursor.fetchall():
-      groupID = group[0]
-      groupName = group[1]
-      newGroup = Group(groupName)
-      #get group members
-      cursor.execute("SELECT rowid,host FROM ans_host_group_members WHERE ans_group = '%d'" % groupID)
-      for host in cursor.fetchall():
-        newGroup.addHost(self.get_host_by_id(host[0]))
-      #get group vars
-      cursor.execute("SELECT name,value FROM ans_group_vars WHERE ans_group = '{0}' AND domain = '{1}'".format(groupID,self.domain.id))
-      for groupVar in cursor.fetchall():
-        newGroup.addVar(groupVar[0],groupVar[1])
-      #get group children or groups of groups of groups
-      #newGroup.addChildren('cheese')
-      group_list.append(newGroup.toDict())
 
-    return group_list
   def get_group_members(self,group):
     '''Get group members by Group'''
     #get group members

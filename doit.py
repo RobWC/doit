@@ -20,6 +20,23 @@ class Domain(object):
     self.id = 0
     self.name = ''
 
+class Host(object):
+  def __init__(self,name,id):
+    self.name = name
+    self.id = id
+    self.vars = {}
+  def addVar(self,name,value):
+    self.vars[name] = value
+  def getVarsCount(self):
+    return len(self.vars.keys())
+  def toDict(self):
+    returnDict = {self.name:{}}
+
+    if self.vars != {}:
+      returnDict[self.name]['vars'] = self.vars
+
+    return returnDict
+
 class Group(object):
   def __init__(self,name,id):
     self.name = name
@@ -43,7 +60,11 @@ class Group(object):
       returnDict[self.name]['children'] = self.children
 
     if self.hosts != []:
-      returnDict[self.name]['hosts'] = self.hosts
+      strHosts = []
+      for host in self.hosts:
+        strHosts.append(host.name)
+
+      returnDict[self.name]['hosts'] = strHosts
 
     return returnDict
 
@@ -127,7 +148,9 @@ class DOIT(object):
     cursor = self.db.cursor()
     cursor.execute("SELECT rowid,host FROM ans_host_group_members WHERE ans_group = '{0}' AND domain = '{1}'".format(group.id,self.domain.id))
     for host in cursor.fetchall():
-      group.addHost(self.get_host_by_id(host[0]))
+      newHost = self.get_host_by_id(host[0])
+      group.addHost(newHost)
+      self.hosts.append(newHost)
 
     return group
 
@@ -140,9 +163,41 @@ class DOIT(object):
 
     return group
 
+  def get_host_vars(self,hostid):
+    '''Get host vars'''
+    hostvars = []
+    cursor = self.db.cursor()
+    cursor.execute("SELECT name,value FROM host_vars WHERE rowid = '{0}' AND domain = '{1}'".format(hostid,self.domain.id))
+    vars = cursor.fetchall()
+    for var in vars:
+      hostvars.append({var[0]:var[1]})
+    return hostvars
+
+  def get_group_children(self,group):
+    '''Get group children'''
+    cursor = self.db.cursor()
+    cursor.execute("SELECT child_group FROM ans_child_group_members WHERE ans_group = '{0}' AND domain = '{1}'".format(group.id,self.domain.id))
+    for child in cursor.fetchall():
+      groupName = self.get_group_by_id(child[0])
+      group.addChildren(groupName)
+
+    return group
+
   def get_host_by_id(self,hostid):
     cursor = self.db.cursor()
-    cursor.execute("SELECT name FROM hosts WHERE rowid = '%d'" % hostid)
+    cursor.execute("SELECT rowid,name FROM hosts WHERE rowid = '{0}' AND domain = '{1}'".format(hostid,self.domain.id))
+    hostValue = cursor.fetchone()
+    host = Host(hostValue[1],hostValue[0])
+    #get host vars
+    hostvars = self.get_host_vars(hostid)
+    for hostvar in hostvars:
+      key = hostvar.keys()[0]
+      host.addVar(key,hostvar[key])
+    return host
+
+  def get_group_by_id(self,groupid):
+    cursor = self.db.cursor()
+    cursor.execute("SELECT name FROM ans_groups WHERE rowid = '%d'" % groupid)
     return cursor.fetchone()[0]
 
   def get_hosts_by_domain(self):
@@ -160,7 +215,10 @@ class DOIT(object):
 
   def build_meta_hostvars(self):
     '''Generate _meta hostvars from gathered data'''
-    return 'foo'
+    if len(self.hosts) > 0:
+      for host in self.hosts:
+        if host.getVarsCount() > 0:
+          self.inventory["_meta"]["hostvars"][host.name] = host.vars
 
   def get_host_info(self):
     '''
@@ -179,6 +237,7 @@ class DOIT(object):
     for idx,group in enumerate(self.groups):
       updatedGroup = self.get_group_members(group)
       updatedGroup = self.get_group_vars(updatedGroup)
+      updatedGroup = self.get_group_children(updatedGroup)
       self.groups[idx] = updatedGroup
 
     return self.groups
@@ -189,6 +248,7 @@ class DOIT(object):
     parser.add_argument('--list',action='store_true',default=True,help='List hosts (default; True)')
     parser.add_argument('--host',action='store',help='Get all the variables about a specific instance')
     parser.add_argument('--domain',action='store',help='Specify the domain of hosts',required=True)
+    #add default location for the db /etc/ansible/hosts.sqlite3
     parser.add_argument('--db',action='store',help='Specify the database file',required=True)
     self.args = parser.parse_args()
 
@@ -210,13 +270,15 @@ class DOIT(object):
       self.inventory = self._empty_inventory()
       data_output = self.get_inventory()
       for group in data_output:
-        self.inventory.update(group.toDict())
+        #this fixes the issue if a group exists within a domain but it doesn't have hosts
+        if len(group.hosts) > 0:
+          self.inventory.update(group.toDict())
 
       self.build_meta_hostvars()
       
     if self.inventory == None:
       print {}
     else:
-      print self.inventory
+      print json.dumps(self.inventory)
 
 DOIT()

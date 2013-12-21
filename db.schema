@@ -43,10 +43,10 @@ create index ans_host_group_members_i3 ON ans_host_group_members(domain);
 create table ans_child_group_members(ans_group INTEGER, 
   child_group INTEGER,
   FOREIGN KEY(ans_group) REFERENCES ans_groups(rowid),
-  FOREIGN KEY(host) REFERENCES hosts(rowid));
+  FOREIGN KEY(child_group) REFERENCES ans_groups(rowid));
 
-create index ans_child_group_members_i1 ON ans_group_members(ans_group); 
-create index ans_child_group_members_i2 ON ans_group_members(host); 
+create index ans_child_group_members_i1 ON ans_child_group_members(ans_group); 
+create index ans_child_group_members_i2 ON ans_child_group_members(child_group); 
 
 
 -- Hosts

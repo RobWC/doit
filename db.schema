@@ -18,18 +18,36 @@ create table ans_groups(domain INTEGER,
 
 create index ans_groups_i1 ON ans_groups(domain); 
 
--- Group_Members
+-- Ans_Host_Group_Members
 -- =================
 -- ans_group - INTEGER
 -- host - INTEGER
+-- domain - INTEGER
 
-create table ans_group_members(ans_group INTEGER, 
+create table ans_host_group_members(ans_group INTEGER, 
   host INTEGER,
+  domain INTEGER,
+  FORGIEN KEY(domain) REFERENCES domains(rowid),
   FOREIGN KEY(ans_group) REFERENCES ans_groups(rowid),
   FOREIGN KEY(host) REFERENCES hosts(rowid));
 
-create index ans_group_members_i1 ON ans_group_members(ans_group); 
-create index ans_group_members_i2 ON ans_group_members(host); 
+create index ans_host_group_members_i1 ON ans_host_group_members(ans_group); 
+create index ans_host_group_members_i2 ON ans_host_group_members(host); 
+create index ans_host_group_members_i3 ON ans_host_group_members(domain); 
+
+-- Ans_Child_Group_Members
+-- =================
+-- ans_group - INTEGER
+-- child_group - INTEGER
+
+create table ans_child_group_members(ans_group INTEGER, 
+  child_group INTEGER,
+  FOREIGN KEY(ans_group) REFERENCES ans_groups(rowid),
+  FOREIGN KEY(host) REFERENCES hosts(rowid));
+
+create index ans_child_group_members_i1 ON ans_group_members(ans_group); 
+create index ans_child_group_members_i2 ON ans_group_members(host); 
+
 
 -- Hosts
 -- =================

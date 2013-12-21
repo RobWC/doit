@@ -21,8 +21,9 @@ class Domain(object):
     self.name = ''
 
 class Group(object):
-  def __init__(self,name):
+  def __init__(self,name,id):
     self.name = name
+    self.id = id
     self.hosts = []
     self.vars = {}
     self.children = []
@@ -108,6 +109,18 @@ class DOIT(object):
       sys.exit(1)
 
   def get_groups_by_domain(self):
+    '''Returns an array of Group objects that belong to the active domain'''
+    cursor = self.db.cursor()
+    cursor.execute("SELECT rowid,name FROM ans_groups WHERE domain = '%d'" % self.domain.id)
+    group_list = []
+    for group in cursor.fetchall():
+      groupID = group[0]
+      groupName = group[1]
+      newGroup = Group(groupName,groupID)
+      group_list.append(newGroup)
+
+    return group_list
+    #Old
     cursor = self.db.cursor()
     cursor.execute("SELECT rowid,name FROM ans_groups WHERE domain = '%d'" % self.domain.id)
     group_list = []
@@ -116,7 +129,7 @@ class DOIT(object):
       groupName = group[1]
       newGroup = Group(groupName)
       #get group members
-      cursor.execute("SELECT rowid,host FROM ans_group_members WHERE ans_group = '%d'" % groupID)
+      cursor.execute("SELECT rowid,host FROM ans_host_group_members WHERE ans_group = '%d'" % groupID)
       for host in cursor.fetchall():
         newGroup.addHost(self.get_host_by_id(host[0]))
       #get group vars
@@ -128,6 +141,24 @@ class DOIT(object):
       group_list.append(newGroup.toDict())
 
     return group_list
+  def get_group_members(self,group):
+    '''Get group members by Group'''
+    #get group members
+    cursor = self.db.cursor()
+    cursor.execute("SELECT rowid,host FROM ans_host_group_members WHERE ans_group = '{0}' AND domain = '{1}'".format(group.id,self.domain.id))
+    for host in cursor.fetchall():
+      group.addHost(self.get_host_by_id(host[0]))
+
+    return group
+
+  def get_group_vars(self,group):
+    '''Get group vars by Group'''
+    cursor = self.db.cursor()
+    cursor.execute("SELECT name,value FROM ans_group_vars WHERE ans_group = '{0}' AND domain = '{1}'".format(group.id,self.domain.id))
+    for groupVar in cursor.fetchall():
+      group.addVar(groupVar[0],groupVar[1])
+
+    return group
 
   def get_host_by_id(self,hostid):
     cursor = self.db.cursor()
@@ -147,6 +178,10 @@ class DOIT(object):
     base_inventory["_meta"]["hostvars"] = {}
     return base_inventory
 
+  def build_meta_hostvars(self):
+    '''Generate _meta hostvars from gathered data'''
+    return 'foo'
+
   def get_host_info(self):
     '''
 {
@@ -160,8 +195,13 @@ class DOIT(object):
   def get_inventory(self):
     '''Generate an inventory by group'''
     self.get_domain_id()
-    group_list = self.get_groups_by_domain()
-    return group_list
+    self.groups = self.get_groups_by_domain()
+    for idx,group in enumerate(self.groups):
+      updatedGroup = self.get_group_members(group)
+      updatedGroup = self.get_group_vars(updatedGroup)
+      self.groups[idx] = updatedGroup
+
+    return self.groups
 
   def parse_cli_args(self):
     ''' Command Line Argument Parser'''
@@ -190,9 +230,13 @@ class DOIT(object):
       self.inventory = self._empty_inventory()
       data_output = self.get_inventory()
       for group in data_output:
-        groupName = group.keys()[0]
-        self.inventory[groupName] = group[groupName]
+        self.inventory.update(group.toDict())
+
+      self.build_meta_hostvars()
       
-    print self.inventory
+    if self.inventory == None:
+      print {}
+    else:
+      print self.inventory
 
 DOIT()

@@ -104,21 +104,22 @@ class Group(object):
 class DOIT(object):
   '''Database methods'''
   def open_database(self):
+    dbLocation = '/etc/ansible/hosts.db'
     try:
-      if (os.path.exists(self.args.db)):
-        self.db = sqlite3.connect(self.args.db)
+      if (os.path.exists(dbLocation)):
+        self.db = sqlite3.connect(dbLocation)
       else:
         raise Exception("DBOpenError")
     except:
       print "Error: Unable to open database"
       sys.exit(1)
 
-  def get_domain_id(self):
+  def get_domain_id(self,name):
     cursor = self.db.cursor()
-    cursor.execute("SELECT ROWID,name FROM domains WHERE name = '%s'" % self.args.domain)
+    cursor.execute("SELECT ROWID,name FROM domains WHERE name = '%s'" % name)
     result = cursor.fetchone()
     
-    #Check that domain exosts
+    #Check that domain exists
     if (result is not None and result[0] is not None and result[1] is not None):
       self.domain.name = result[1]
       self.domain.id = result[0]
@@ -167,7 +168,7 @@ class DOIT(object):
     '''Get host vars'''
     hostvars = []
     cursor = self.db.cursor()
-    cursor.execute("SELECT name,value FROM host_vars WHERE rowid = '{0}' AND domain = '{1}'".format(hostid,self.domain.id))
+    cursor.execute("SELECT name,value FROM host_vars WHERE host = '{0}' AND domain = '{1}'".format(hostid,self.domain.id))
     vars = cursor.fetchall()
     for var in vars:
       hostvars.append({var[0]:var[1]})
@@ -183,13 +184,28 @@ class DOIT(object):
 
     return group
 
+  def get_host_by_name(self,name):
+    cursor = self.db.cursor()
+    cursor.execute("SELECT rowid,name FROM hosts WHERE name = '{0}' AND domain = '{1}'".format(name,self.domain.id))
+    hostValue = cursor.fetchone()
+    if hostValue != None:
+      host = Host(hostValue[1],hostValue[0])
+      #get host vars
+      hostvars = self.get_host_vars(hostValue[0])
+      for hostvar in hostvars:
+        key = hostvar.keys()[0]
+        host.addVar(key,hostvar[key])
+      return host
+    else:
+      return {}
+
   def get_host_by_id(self,hostid):
     cursor = self.db.cursor()
     cursor.execute("SELECT rowid,name FROM hosts WHERE rowid = '{0}' AND domain = '{1}'".format(hostid,self.domain.id))
     hostValue = cursor.fetchone()
     host = Host(hostValue[1],hostValue[0])
     #get host vars
-    hostvars = self.get_host_vars(hostid)
+    hostvars = self.get_host_vars(hostValue[0])
     for hostvar in hostvars:
       key = hostvar.keys()[0]
       host.addVar(key,hostvar[key])
@@ -221,18 +237,17 @@ class DOIT(object):
           self.inventory["_meta"]["hostvars"][host.name] = host.vars
 
   def get_host_info(self):
-    '''
-{
-    "favcolor"   : "red",
-    "ntpserver"  : "wolf.example.com",
-    "monitoring" : "pack.example.com"
-} OR {}
-    '''
-    return {}
+    self.get_domain_id(self.domain_name)
+    host = self.get_host_by_name(self.args.host)
+    hostVarsList = self.get_host_vars(host.id)
+    hostVars = {}
+    for dict in hostVarsList:
+      hostVars.update(dict)
+    return hostVars
 
   def get_inventory(self):
     '''Generate an inventory by group'''
-    self.get_domain_id()
+    self.get_domain_id(self.domain_name)
     self.groups = self.get_groups_by_domain()
     for idx,group in enumerate(self.groups):
       updatedGroup = self.get_group_members(group)
@@ -247,9 +262,7 @@ class DOIT(object):
     parser = argparse.ArgumentParser(description='Generate an Ansible Inventory File')
     parser.add_argument('--list',action='store_true',default=True,help='List hosts (default; True)')
     parser.add_argument('--host',action='store',help='Get all the variables about a specific instance')
-    parser.add_argument('--domain',action='store',help='Specify the domain of hosts',required=True)
     #add default location for the db /etc/ansible/hosts.sqlite3
-    parser.add_argument('--db',action='store',help='Specify the database file',required=True)
     self.args = parser.parse_args()
 
   def __init__(self):
@@ -257,6 +270,7 @@ class DOIT(object):
 
     #Start with an empty inventory
     self.inventory = None
+    self.domain_name = os.environ.get('DOIT_DOMAIN')
     self.domain = Domain()
     self.groups = []
     self.hosts = []
@@ -266,6 +280,7 @@ class DOIT(object):
 
     if self.args.host:
       data_output = self.get_host_info()
+      self.inventory = data_output
     elif self.args.list:
       self.inventory = self._empty_inventory()
       data_output = self.get_inventory()

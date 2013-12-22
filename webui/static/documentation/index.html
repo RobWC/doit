@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Unicorn Admin Documentation</title>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+        <link rel="stylesheet" type="text/css" href="css/doc.css" />
+        
+        <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+            <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+			<script type="text/javascript" src="js/respond.min.js"></script>
+	</head>    <body>    
+        <div class="container-fluid">
+            <header>
+                <div class="page-header">
+                    <h1>Unicorn Admin Documentation <small>Version: 2.2.0</small></h1>
+                </div>
+                <p>Thanks for buying my theme. This documentation provides a basic informations about theme and it's elements.<br />If you have any questions, feel free to ask me on my e-mail: <a href="mailto:diablo9983@gmail.com">diablo9983@gmail.com</a></p>
+            </header> 
+            <section id="table-contents">
+                <div class="page-header">
+                    <h1>Table of contents</h1>
+                </div>
+                <ol>
+                    <li>
+                        <a href="#base-styles">Base Styles</a>
+                        <ul>
+                            <li><a href="#widget-box">Widget Boxes</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#javascript-plugins">Javascript plugins</a>
+                        <ul>
+                            <li><a href="#form-validation">Form Validation</a></li>
+                            <li><a href="#charts">Charts and graphs</a></li>
+                            <li><a href="#datatables">Datatables</a></li>
+                            <li><a href="#wizard">Form Wizard</a></li>
+                            <li><a href="#calendar">Calendar</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#credits">Credits</a></li>
+                </ol>
+            </section>
+            <section id="base-styles">
+                <div class="page-header">
+                    <h1>Base Styles</h1>
+                </div>
+                <h3 id="widget-box">Widget Boxes</h3>
+                <p>Widget boxes that contains the various elements can be very easily created. Basic syntax looks like below:</p>
+                <pre>&lt;div class="widget-box"&gt;
+    &lt;div class="widget-title"&gt;
+        &lt;h5&gt;Title&lt;/h5&gt;
+    &lt;/div&gt;
+    &lt;div class="widget-content"&gt;
+        &lt;!-- BOX CONTENT GOES HERE --&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+                <p>As you see, the box is a two divs with classes <code>widget-title</code> and <code>widget-content</code> wrapped in a one parent div with class <code>widget-box</code></p>
+                <p>The title box can contain a icon placed on the left relative to the title <code>&lt;h5&gt;</code> element. Just add <code>&lt;span class="icon"&gt;&lt;i class="icon-repeat"&gt;&lt;/i&gt;&lt;/span&gt;</code> right before the title text and replace the class of <code>i</code> element to one of you choose. For all available icons please reffer to the <a href="http://twitter.github.com/bootstrap/base-css.html#icons">bootstrap documentation</a>.</p>
+            </section>
+            <section id="javascript-plugins">
+                <div class="page-header">
+                    <h1>Javascript Plugins</h1>
+                </div>
+                <h3 id="form-validation">Form Validation</h3>
+                <p>The theme contains an integrated form validation plugin. To use them, add below code to the bottom of the page:</p>
+                <pre>&lt;script type="text/javascript" scr="js/jquery.validate.js"&gt;&lt;/script&gt;</pre>
+                <p>The basic usage is very simple. Here is a basic example:</p>
+                <h4>Javascript:</h4>
+                <pre>&lt;script type="text/javascript"&gt;
+    $("#register_form").validate({
+        rules:{
+            user_name:"required",
+            user_email:{
+                required:true,
+                email: true
+            },
+        messages:{
+            user_name:"Enter your first and last name",
+            user_email:{
+                required:"Enter your email address",
+                email:"Enter valid email address"
+        },
+        errorClass: "help-inline",
+        errorElement: "span"
+    });
+&lt;/script&gt;</pre>
+                <h4>HTML form:</h4>
+                <pre>&lt;form id="register_form" name="register_form" action="auth.php" method="post"&gt;
+    &lt;input type="text" name="user_name" id="user_name" value="" /&gt;
+    &lt;input type="text" name="user_email"  id="user_email" value="" /&gt;    
+    &lt;input type="submit" name="submit" value="Register" /&gt;           
+&lt;/form&gt;</pre>
+                <h4>Explanation:</h4>
+                <p>
+                    Part <code>$("#register_form").validate({ });</code> is reliable for initializing the validation on the provided form id and contains all options that controls the validation.<br />
+                    Next part: <code>rules:{ }</code> is reliable for validation rules.<br />
+                    Next part: <code>messages:{ }</code> is reliable for messages that is shown when error occurs.<br />
+                    And the <code>errorClass: "help-inline"</code> is a class that be added to element controlled by <code>errorElement: "span"</code> when error occurs.
+                </p>
+                <p>For full documentation please reffer to the plugin <a href="http://docs.jquery.com/Plugins/Validation">wiki page</a></p>
+                <br /><br />
+                <h3 id="charts">Charts and graphs</h3>
+                <p>The theme contains an integrated charts generating plugin called Flot. This plugin can be used for generating charts and graph from any kind of data.<br />
+                Full documentation about usage can be found <a href="http://code.google.com/p/flot/">at project page</a>.</p>
+                <br /><br />
+                <h3 id="datatables">Datatables</h3>
+                <p>The next available javascript plugin is datatables. DataTables is a plug-in for the jQuery Javascript library. It is a highly flexible tool, based upon the foundations of progressive enhancement, which will add advanced interaction controls to any HTML table. Some of the features:</p>
+                <ul>
+                    <li>Variable length pagination</li>
+                    <li>On-the-fly filtering</li>
+                    <li>Multi-column sorting with data type detection</li>
+                    <li>Smart handling of column widths</li>
+                    <li>Display data from almost any data source eg.
+                        <ul>
+                            <li>DOM</li>
+                            <li>Javascript array</li>
+                            <li>Ajax file and server-side provessing (PHP, C#, Perl, Ruby, AIR, Gears etc)</li>
+                        </ul>
+                    </li>
+                </ul>
+                <p>Full documentation about usage can be found on <a href="http://datatables.net/usage/">plugin homepage</a>.</p>
+                <br /><br />
+                <h3 id="wizard">Form wizard</h3>
+                <p>The form wizard plugin is a jQuery plugin which can be used to create wizard like page flows for forms without having to reload the page in between wizard steps.</p>
+                <p>The plugin is unobtrusive and gives the developer great freedom on how they set up the flow of the different steps in their wizards, as the plugin supports creating specific routes in the form; depending on the user input. </p>
+                <h4>Features:</h4>
+                <ul>
+                	<li>Built on top of jQuery UI for flexible theming</li>
+                	<li>Divides a single form into different steps to simulate a flow of steps rather than one big form.</li>
+                	<li>Supports different routes to be taken in the form, depending on user input.</li>    
+                	<li>Submits only input fields located on visited steps in the form.</li>
+                	<li>Supports multiple "submit"-steps</li>
+                	<li>Supports both back and forward navigation.</li>
+                	<li>Supports the usage of browser back- and forward-buttons through integration with the jQuery BBQ: Back Button &amp; Query Library plugin</li>
+                	<li>Supports client-side validation through integration with the jQuery validation plugin</li>
+                	<li>Supports posting the form using AJAX through integration with the jQuery.form plugin</li>
+                	<li>Integrated plugins are fully configurable, providing e.g. possibility for localization, extra validation rules and custom callbacks used during the AJAX-request.</li>	
+                </ul>
+                <p>Examples and instruction how to use a plugin can be found at <a href="http://www.thecodemine.org/">project home page</a>.
+                <br /><br />
+                <h3 id="calendar">Calendar</h3>
+                <p>The last available plugin is FullCalendar. FullCalendar is a jQuery plugin that provides a full-sized, drag &amp; drop. It uses AJAX to fetch events on-the-fly for each month and is easily configured to use your own feed format</p>
+                <p>Instruction how to use a plugin can be found at <a href="http://arshaw.com/fullcalendar/docs/">project documentation page</a>.</p>
+            </section>
+            <section id="credits">
+                <div class="page-header">
+                    <h1>Credits</h1>
+                </div>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Author</th>
+                            <th>License</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Copenhagen Icons</td>
+                            <td><a href="http://www.iconfinder.com/blog/5/">IconFinder</a></td>
+                            <td>Creative Commons Attribution-NoDerivs 2.5 Denmark</td>
+                        </tr>
+                        <tr>
+                            <td><a href="http://fortawesome.github.io/Font-Awesome/">Font Awesome</a></td>
+                            <td><a href="http://twitter.com/davegandy">Dave Gandy</a></td>
+                            <td><a href="http://scripts.sil.org/OFL">SIL OFL 1.1</a> / MIT</td>
+                        </tr>
+                        <tr>
+                            <td>jQuery Form Validation</td>
+                            <td><a href="http://bassistance.de/jquery-plugins/jquery-plugin-validation/">Jörn Zaefferer</a></td>
+                            <td>MIT / GPL</td>
+                        </tr>
+                        <tr>
+                            <td>jQuery Sparklines</td>
+                            <td><a href="http://omnipotent.net/jquery.sparkline/">Gareth Watts</a></td>
+                            <td>New BSD</td>
+                        </tr>
+                        <tr>
+                            <td>iCheck</td>
+                            <td><a href="http://damirfoy.com/iCheck/">Damir Foy</a></td>
+                            <td>MIT</td>
+                        </tr>
+                        <tr>
+                            <td>jQuery Wizard</td>
+                            <td><a href="http://www.thecodemine.org">Jan Sundman</a></td>
+                            <td>MIT</td>
+                        </tr>
+                        <tr>
+                            <td>jQuery Flot</td>
+                            <td><a href="https://code.google.com/p/flot/">Project page</a></td>
+                            <td>MIT</td>
+                        </tr>
+                         <tr>
+                            <td>Select2</td>
+                            <td><a href="http://ivaynberg.github.com/select2/">Igor Vaynberg</a></td>
+                            <td>Apache 2.0</td>
+                        </tr>
+                        <tr>
+                            <td>jQuery Datatables</td>
+                            <td><a href="http://datatables.net/">Sprymedia</a></td>
+                            <td>GPL v2 / BSD (3-point)</td>
+                        </tr>
+                        <tr>
+                            <td>jQuery Gritter</td>
+                            <td><a href="http://www.boedesign.com/">Jordan Boesch</a></td>
+                            <td>MIT / GPL</td>
+                        </tr>
+                        <tr>
+                            <td>FullCallendar</td>
+                            <td><a href="http://arshaw.com/fullcalendar/">Adam Shaw</a></td>
+                            <td>MIT / GPL v2</td>
+                        </tr>
+                        <tr>
+                            <td>Colorpicker for Bootstrap</td>
+                            <td><a href="http://www.eyecon.ro/">Stefan Petre</a></td>
+                            <td>Apache 2.0</td>
+                        </tr>
+                        <tr>
+                            <td>Datepicker for Bootstap</td>
+                            <td><a href="http://www.eyecon.ro/">Stefan Petre</a></td>
+                            <td>Apache 2.0</td>
+                        </tr>
+                        <tr>
+                            <td>jPanelMenu</td>
+                            <td><a href="http://acolangelo.com/">Anthony Colangelo</a></td>
+                            <td>MIT</td>
+                        </tr>
+                        <tr>
+                            <td>Bootbox</td>
+                            <td><a href="http://paynedigital.com/about">Nick Payne</a></td>
+                            <td>MIT</td>
+                        </tr>
+                        <tr>
+                            <td>WysiHTML5</td>
+                            <td><a href="https://github.com/tiff">Christopher Blum</a></td>
+                            <td>MIT</td>
+                        </tr>
+                        <tr>
+                            <td>Bootstrap WysiHTML5</td>
+                            <td><a href="jhollingworth.github.io">jhollingworth</a></td>
+                            <td>Undefined</td>
+                        </tr>
+                        <tr>
+                            <td>Nicescroll</td>
+                            <td><a href="http://areaaperta.com/nicescroll">InuYaksa</a></td>
+                            <td>MIT</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <footer>
+                <span class="pull-left">Copyright &copy; 2012-2013 Diablo9983 | <a href="mailto:diablo9983@gmail.com">diablo9983@gmail.com</a></span>
+                <span class="pull-right">Unicorn 2.2.0</span>
+                <div class="clearfix"></div>
+            </footer>
+        </div>
+    </body>
+</html>

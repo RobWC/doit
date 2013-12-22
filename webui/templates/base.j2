@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <head>
+    {% block head %}
+    <title>DOIT: {{ title }} </title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.css">
+    <link rel="stylesheet" href="css/fullcalendar.css">
+    <link rel="stylesheet" href="css/jquery.jscrollpane.css"> 
+    <link rel="stylesheet" href="css/unicorn.css">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="js/respond.min.js"></script>
+    <![endif]-->
+    <style type="text/css">.jqstooltip { position: absolute;left: 0px;top: 0px;visibility: hidden;background: rgb(0, 0, 0) transparent;background-color: rgba(0,0,0,0.6);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";color: white;font: 10px arial, san serif;text-align: left;white-space: nowrap;padding: 5px;border: 1px solid white;z-index: 10000;}.jqsfield { color: white;font: 10px arial, san serif;text-align: left;}
+    </style>
+    {% endblock %}
+  </head>
+  <body data-color="grey" class="flat" style>
+    <div id="wrapper">
+      <div id="header">
+        <h1>
+          <a href="/index.html">DOIT Admin</a>
+        </h1>
+        <a id="menu-trigger" href="#">
+          <i class="fa fa-bars"></i>
+        </a>
+      </div>
+      <div id="user-nav">
+        <ul class="btn-group" style="width: auto; margin: 0px;">
+          <li class="btn">
+            <a title="" href="#"><i class="fa fa-user"></i> <span class="text">Profile</span></a></li>
+          <li class="btn">
+            <a title="" href="#"><i class="fa fa-cog"></i> <span class="text">Settings</span></a></li>
+          <li class="btn">
+            <a title="" href="login.html"><i class="fa fa-share"></i> <span class="text">Logout</span></a></li>
+      </ul>
+      </div>
+      <div id="sidebar" style="">
+        <ul style="display: block;">
+          <li id="sbDashboard" >
+            <a href="/"><i class="fa fa-home"></i> <span>Dashboard</span></a>
+          </li>
+          <li id="sbDomains">
+            <a href="/domains"><i class="fa fa-list"></i> <span>Domains<span></a>
+          </li>
+        </ul>
+      
+      </div>
+      <div id="content">
+        <div id="content-header" class="mini">
+          <h1>{{ title }}</h1>
+        </div>
+      </div>
+      <div class="row">
+        <div id="footer" class="col-xs-12">
+         
+        </div>
+      </div>
+    </div>
+    <script src="js/excanvas.min.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-ui.custom.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.flot.min.js"></script>
+    <script src="js/jquery.flot.resize.min.js"></script>
+    <script src="js/jquery.sparkline.min.js"></script>
+    <script src="js/fullcalendar.min.js"></script>
+    <script src="js/jquery.nicescroll.min.js"></script>
+    <script src="js/unicorn.js"></script>
+    <script src="js/unicorn.dashboard.js"></script>
+  </body>
+</html>
+{% endautoescape %}

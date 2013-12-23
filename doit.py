@@ -104,7 +104,12 @@ class Group(object):
 class DOIT(object):
   '''Database methods'''
   def open_database(self):
-    dbLocation = '/etc/ansible/hosts.db'
+    dbLocation = ''
+    if (self.args.db != None):
+      dbLocation = self.args.db
+    else:
+      dbLocation = '/etc/ansible/hosts.db'
+    
     try:
       if (os.path.exists(dbLocation)):
         self.db = sqlite3.connect(dbLocation)
@@ -262,6 +267,7 @@ class DOIT(object):
     parser = argparse.ArgumentParser(description='Generate an Ansible Inventory File')
     parser.add_argument('--list',action='store_true',default=True,help='List hosts (default; True)')
     parser.add_argument('--host',action='store',help='Get all the variables about a specific instance')
+    parser.add_argument('--db',action='store',help='Specify db location')
     #add default location for the db /etc/ansible/hosts.sqlite3
     self.args = parser.parse_args()
 
@@ -286,8 +292,7 @@ class DOIT(object):
       data_output = self.get_inventory()
       for group in data_output:
         #this fixes the issue if a group exists within a domain but it doesn't have hosts
-        if len(group.hosts) > 0:
-          self.inventory.update(group.toDict())
+        self.inventory.update(group.toDict())
 
       self.build_meta_hostvars()
       

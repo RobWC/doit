@@ -14,9 +14,23 @@ import sqlite3
 import json
 
 class Domain(object):
-  def __init__(self):
+  def __init__(self,name):
     self.id = 0
-    self.name = ''
+    self.name = name
+  def toDict(self):
+    returnDict = {'name':self.name,'id':self.id}
+    return returnDict
+
+class Var(object):
+  def __init__(self,name,value,type):
+    self.name = name
+    self.value = value
+    self.domain = 0
+    self.id = 0
+    self.type = type # host,group,role
+  def toDict(self):
+    returnDict = dict({'name':self.name,'value':self.value,'id':self.id,'type':self.type})
+    return returnDict
 
 class Host(object):
   def __init__(self,name,id):
@@ -28,7 +42,7 @@ class Host(object):
   def getVarsCount(self):
     return len(self.vars.keys())
   def toDict(self):
-    returnDict = {self.name:{}}
+    returnDict = {'name':self.name,'id':self.id}
 
     if self.vars != {}:
       returnDict[self.name]['vars'] = self.vars
@@ -48,6 +62,23 @@ class Group(object):
     self.vars[name] = value
   def addChildren(self,name):
     self.children.append(name)
+  def toAnsible(self):
+    returnDict = {self.name:{}}
+
+    if self.vars != {}:
+      returnDict[self.name]['vars'] = self.vars
+
+    if self.children != []:
+      returnDict[self.name]['children'] = self.children
+
+    if self.hosts != []:
+      strHosts = []
+      for host in self.hosts:
+        strHosts.append(host.name)
+
+      returnDict[self.name]['hosts'] = strHosts
+
+    return returnDict
   def toDict(self):
     returnDict = {self.name:{}}
 
@@ -116,6 +147,18 @@ class DOIT(object):
     except:
       print "Error: Unable to open database"
       sys.exit(1)
+
+  def get_domain_list(self):
+    cursor = self.db.cursor()
+    cursor.execute("SELECT name FROM domains")
+    result = cursor.fetchall()
+    return result
+
+  def get_domain_count(self):
+    cursor = self.db.cursor()
+    cursor.execute("SELECT count(name) FROM domains")
+    result = cursor.fetchone()
+    return result[0]
 
   def get_domain_id(self,name):
     cursor = self.db.cursor()
@@ -187,6 +230,27 @@ class DOIT(object):
 
     return group
 
+  def add_host(self,name):
+    cursor = self.db.cursor()
+    #check if host name exists
+    hostCheck  = self.get_host_by_name(name)
+    if hostCheck.id == 0:
+      #host does not exist
+      print 'NOHOST'
+      cursor.execute("INSERT INTO hosts (name,domain) VALUES ('{0}',{1})".format(name,self.domain.id))
+      self.db.commit()
+      host  = self.get_host_by_name(name)
+    else:
+      #host already exists
+      host = hostCheck
+
+    return host
+    
+  def delete_host_by_name(self,name):
+    #delete any forgien key rows
+    #delete host
+    #return empty host object
+
   def get_host_by_name(self,name):
     cursor = self.db.cursor()
     cursor.execute("SELECT rowid,name FROM hosts WHERE name = '{0}' AND domain = '{1}'".format(name,self.domain.id))
@@ -200,7 +264,8 @@ class DOIT(object):
         host.addVar(key,hostvar[key])
       return host
     else:
-      return {}
+      host = Host('',0)
+      return host
 
   def get_host_by_id(self,hostid):
     cursor = self.db.cursor()
@@ -214,10 +279,25 @@ class DOIT(object):
       host.addVar(key,hostvar[key])
     return host
 
+  def get_group_by_name(self,groupname):
+    cursor = self.db.cursor()
+    cursor.execute("SELECT rowid,name FROM ans_groups WHERE name = '%s'" % groupname)
+    return cursor.fetchone()[0]
+
   def get_group_by_id(self,groupid):
     cursor = self.db.cursor()
     cursor.execute("SELECT name FROM ans_groups WHERE rowid = '%d'" % groupid)
     return cursor.fetchone()[0]
+
+  def get_groups_with_domain_name(self):
+    cursor = self.db.cursor()
+    cursor.execute("SELECT ans_groups.name,domains.name FROM ans_groups INNER JOIN domains ON ans_groups.domain = domains.rowid")
+    return cursor.fetchall()
+
+  def get_hosts_with_domain_name(self):
+    cursor = self.db.cursor()
+    cursor.execute("SELECT hosts.name,domains.name FROM hosts INNER JOIN domains ON hosts.domain = domains.rowid")
+    return cursor.fetchall()
 
   def get_hosts_by_domain(self):
     cursor = self.db.cursor()
@@ -275,7 +355,7 @@ class DOIT(object):
     #Start with an empty inventory
     self.inventory = None
     self.domain_name = os.environ.get('DOIT_DOMAIN')
-    self.domain = Domain()
+    self.domain = Domain(self.domain_name)
     self.groups = []
     self.hosts = []
 
@@ -290,7 +370,7 @@ class DOIT(object):
       data_output = self.get_inventory()
       for group in data_output:
         #this fixes the issue if a group exists within a domain but it doesn't have hosts
-        self.inventory.update(group.toDict())
+        self.inventory.update(group.toAnsible())
 
       self.build_meta_hostvars()
       

@@ -1,1 +1,29 @@
 {% extends "base.j2" %}
+{% block content %}
+  <div class="col-xs-12">
+    <div class="widget-box">
+      <div class="widget-title">
+        <span class="icon">
+          <i class="fa fa-th"></i>
+        </span>
+        <h5>Domains</h5>
+      </div>
+      <div class="widget-content nopadding">
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Name</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for value in domainList %}
+            <tr>
+              <td>{{ value[0].title() }}</td>
+            </tr>
+          {% endfor %}    
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}

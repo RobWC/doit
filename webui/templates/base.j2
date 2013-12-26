@@ -6,11 +6,11 @@
     <title>DOIT: {{ title }} </title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/font-awesome.css">
-    <link rel="stylesheet" href="css/fullcalendar.css">
-    <link rel="stylesheet" href="css/jquery.jscrollpane.css"> 
-    <link rel="stylesheet" href="css/unicorn.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/font-awesome.css">
+    <link rel="stylesheet" href="/css/fullcalendar.css">
+    <link rel="stylesheet" href="/css/jquery.jscrollpane.css"> 
+    <link rel="stylesheet" href="/css/unicorn.css">
     <!--[if lt IE 9]>
     <script type="text/javascript" src="js/respond.min.js"></script>
     <![endif]-->
@@ -22,29 +22,31 @@
     <div id="wrapper">
       <div id="header">
         <h1>
-          <a href="/index.html">DOIT Admin</a>
+          <a href="/">DOIT Admin</a>
         </h1>
         <a id="menu-trigger" href="#">
           <i class="fa fa-bars"></i>
         </a>
       </div>
       <div id="user-nav">
-        <ul class="btn-group" style="width: auto; margin: 0px;">
-          <li class="btn">
-            <a title="" href="#"><i class="fa fa-user"></i> <span class="text">Profile</span></a></li>
-          <li class="btn">
-            <a title="" href="#"><i class="fa fa-cog"></i> <span class="text">Settings</span></a></li>
-          <li class="btn">
-            <a title="" href="login.html"><i class="fa fa-share"></i> <span class="text">Logout</span></a></li>
-      </ul>
+       
       </div>
       <div id="sidebar" style="">
         <ul style="display: block;">
           <li id="sbDashboard" >
-            <a href="/"><i class="fa fa-home"></i> <span>Dashboard</span></a>
+            <a href="/"><i class="glyphicon glyphicon-home"></i> <span>Dashboard</span></a>
           </li>
           <li id="sbDomains">
-            <a href="/domains"><i class="fa fa-list"></i> <span>Domains<span></a>
+            <a href="/domains"><i class="glyphicon glyphicon-globe"></i> <span>Domains<span></a>
+          </li>
+          <li id="sbHosts">
+            <a href="/hosts"><i class="glyphicon glyphicon-list"></i> <span>Hosts<span></a>
+          </li>
+          <li id="sbGroups">
+            <a href="/groups"><i class="glyphicon glyphicon-th"></i> <span>Groups<span></a>
+          </li>
+          <li id="sbGroupVars">
+            <a href="/group_vars"><i class="glyphicon glyphicon-cutlery"></i> <span>Group Vars<span></a>
           </li>
         </ul>
       
@@ -52,6 +54,9 @@
       <div id="content">
         <div id="content-header" class="mini">
           <h1>{{ title }}</h1>
+        </div>
+        <div class="row">
+          {% block content %}{% endblock %}
         </div>
       </div>
       <div class="row">

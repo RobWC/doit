@@ -6,20 +6,20 @@
         <span class="icon">
           <i class="fa fa-th"></i>
         </span>
-        <h5>DOIT Object Count</h5>
+        <h5>Groups</h5>
       </div>
       <div class="widget-content nopadding">
         <table class="table table-bordered table-striped table-hover">
           <thead>
             <tr>
-              <th>Type</th>
-              <th>Count</th>
+              <th>Name</th>
+              <th>Value</th>
             </tr>
           </thead>
           <tbody>
-          {% for key, value in typeCounts.iteritems() %}
+          {% for key,value in groupVars.iteritems() %}
             <tr>
-              <td>{{ key.title() }}</td>
+              <td>{{ key }}</td>
               <td>{{ value }}</td>
             </tr>
           {% endfor %}    

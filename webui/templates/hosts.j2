@@ -6,21 +6,21 @@
         <span class="icon">
           <i class="fa fa-th"></i>
         </span>
-        <h5>DOIT Object Count</h5>
+        <h5>Hosts</h5>
       </div>
       <div class="widget-content nopadding">
         <table class="table table-bordered table-striped table-hover">
           <thead>
             <tr>
-              <th>Type</th>
-              <th>Count</th>
+              <th>Name</th>
+              <th>Domain</th>
             </tr>
           </thead>
           <tbody>
-          {% for key, value in typeCounts.iteritems() %}
+          {% for value in hostList %}
             <tr>
-              <td>{{ key.title() }}</td>
-              <td>{{ value }}</td>
+              <td>{{ value[0] }}</td>
+              <td>{{ value[1].title() }}</td>
             </tr>
           {% endfor %}    
           </tbody>

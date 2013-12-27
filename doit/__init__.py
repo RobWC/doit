@@ -174,7 +174,8 @@ class DOIT(object):
         sys.exit(1)
     else: 
       print "Unable to find specified domain"
-      sys.exit(1)
+      self.domain.name = name
+      self.domain.id = 0
 
   def get_groups_by_domain(self):
     '''Returns an array of Group objects that belong to the active domain'''
@@ -209,6 +210,20 @@ class DOIT(object):
       group.addVar(groupVar[0],groupVar[1])
 
     return group
+
+  def delete_group_host(self,host):
+    '''Delete group host vars'''
+    cursor = self.db.cursor()
+    cursor.execute("DELETE FROM ans_host_group_members WHERE host = '{0}' AND domain = '{1}'".format(host.id,self.domain.id))
+    vars = cursor.fetchall()
+    return vars
+
+  def delete_host_vars(self,host):
+    '''Delete host vars'''
+    cursor = self.db.cursor()
+    cursor.execute("DELETE FROM host_vars WHERE host = '{0}' AND domain = '{1}'".format(host.id,self.domain.id))
+    vars = cursor.fetchall()
+    return vars
 
   def get_host_vars(self,hostid):
     '''Get host vars'''
@@ -247,6 +262,22 @@ class DOIT(object):
     return host
     
   def delete_host_by_name(self,name):
+    cursor = self.db.cursor()
+    cursor.execute("SELECT rowid,name FROM hosts WHERE name = '{0}' AND domain = '{1}'".format(name,self.domain.id))
+    hostValue = cursor.fetchone()
+    if hostValue != None:
+      # host exists delete and forgien key rows
+      host = Host(hostValue[1],hostValue[0])
+      #delete host vars
+      self.delete_host_vars(host)
+      self.delete_group_host(host)
+      cursor.execute("DELETE FROM hosts WHERE name = '{0}' AND domain = '{1}'".format(name,self.domain.id))
+      host = Host('',0)
+      return host
+    else:
+      #host doesnt exist
+      host = Host('',0)
+      return host
     #delete any forgien key rows
     #delete host
     #return empty host object
@@ -349,13 +380,13 @@ class DOIT(object):
     #add default location for the db /etc/ansible/hosts.sqlite3
     self.args = parser.parse_args()
 
-  def __init__(self):
+  def __init__(self,domain):
     '''Main'''
 
     #Start with an empty inventory
     self.inventory = None
-    self.domain_name = os.environ.get('DOIT_DOMAIN')
-    self.domain = Domain(self.domain_name)
+    self.domain_name = domain.name
+    self.domain = domain
     self.groups = []
     self.hosts = []
 
@@ -378,5 +409,3 @@ class DOIT(object):
       print {}
     else:
       print json.dumps(self.inventory)
-
-DOIT()

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from flask import Flask, render_template, request, Response, url_for, make_response
+from flask import Flask, render_template, request, Response, url_for, make_response, abort
 
 import argparse
 import sqlite3
@@ -12,6 +12,7 @@ sys.path.append('/home/rcameron/code/doit')
 #import doit core
 from doit import DOIT
 from doit import Group
+from doit import Domain
 
 if __name__ == '__main__':
 
@@ -19,14 +20,13 @@ if __name__ == '__main__':
   parser.add_argument('--db',action='store',help='Specify db location')
   args = parser.parse_args()
 
-  myDoit = DOIT()
-
   app = Flask(__name__, static_url_path='')
   app.debug = True
 
   @app.route('/')
   def index():    # Get domain count
-    myDoit = DOIT()
+    domain = Domain('production')
+    myDoit = DOIT(domain)
     typeCounts = {'domains':0,'groups':0,'hosts':0}
     typeCounts['domains'] = myDoit.get_domain_count()
     typeCounts['groups'] = len(myDoit.get_groups_by_domain())
@@ -35,31 +35,36 @@ if __name__ == '__main__':
 
   @app.route('/domains')
   def domains():
-    myDoit = DOIT()
+    domain = Domain('production')
+    myDoit = DOIT(domain)
     domainList = myDoit.get_domain_list()
     return render_template('domains.j2',title="Domains",domainList=domainList)
 
   @app.route('/hosts')
   def hosts():
-    myDoit = DOIT()
+    domain = Domain('production')
+    myDoit = DOIT(domain)
     hostList = myDoit.get_hosts_with_domain_name()
     return render_template('hosts.j2',title="Hosts",hostList=hostList)
 
   @app.route('/groups')
   def groups():
-    myDoit = DOIT()
+    domain = Domain('production')
+    myDoit = DOIT(domain)
     groupList = myDoit.get_groups_with_domain_name()
     return render_template('groups.j2',title="Groups",groupList=groupList)
 
   @app.route('/group_vars')
   def group_vars():
-    myDoit = DOIT()
+    domain = Domain('production')
+    myDoit = DOIT(domain)
     groupList = myDoit.get_groups_with_domain_name()
     return render_template('group_vars.j2',title="Group Variables",groupList=groupList)
 
   @app.route('/group_vars/<group>/list')
   def group_vars_by_group(group):
-    myDoit = DOIT()
+    domain = Domain('')
+    myDoit = DOIT(domain)
     groupId = myDoit.get_group_by_name(group)
     groupObj = Group(group,groupId)
     groupObj = myDoit.get_group_vars(groupObj)
@@ -101,15 +106,14 @@ if __name__ == '__main__':
   }
 
   '''
-  @app.route('/api/<type>/<name>/<action>', methods = ['POST','DELETE','PUT','GET'])
+  @app.route('/api/1/<type>/<name>/<action>', methods = ['POST','DELETE','PUT','GET'])
   def api(type,name,action):
     reqMethod = request.method
+    domain_name = request.args.get('domain')
     response = Response()
     #contentType = request.headers['content-type']
-    a = None
-    b = None
-    value = "foo"
-    myDoit = DOIT()
+    domain = Domain(domain_name)
+    myDoit = DOIT(domain)
     #content = request.json['content']
     if type == 'host':
       #handle host requests
@@ -122,7 +126,7 @@ if __name__ == '__main__':
       elif action == 'list' and reqMethod == 'GET':
         response.data = json.dumps(myDoit.get_host_by_name(name).toDict())
       else:
-        print "Invalid action"
+        abort(500)
     elif type == 'group':
       #handle group requests
       a = 1
@@ -135,10 +139,7 @@ if __name__ == '__main__':
     else:
       a = None
 
-    print a
-    print b
     response.headers['Content-Type'] = 'application/json'
     return response
-    #return make_response(json.dumps(value.toDict()))
 
   app.run(host="0.0.0.0",port=int("12345"))

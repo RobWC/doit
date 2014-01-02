@@ -42,6 +42,7 @@ if __name__ == '__main__':
 
   @app.route('/hosts')
   def hosts():
+    domain_name = request.args.get('domain')
     domain = Domain('production')
     myDoit = DOIT(domain)
     hostList = myDoit.get_hosts_with_domain_name()
@@ -50,6 +51,7 @@ if __name__ == '__main__':
 
   @app.route('/groups')
   def groups():
+    domain_name = request.args.get('domain')
     domain = Domain('production')
     myDoit = DOIT(domain)
     groupList = myDoit.get_groups_with_domain_name()

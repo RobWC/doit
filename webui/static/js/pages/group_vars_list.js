@@ -1,5 +1,5 @@
 function getGroupName() {
-    var regex = new RegExp("/group_vars/([a-zA-Z]+)/list"),
+    var regex = new RegExp("/group_vars/(.+)/list"),
         results = regex.exec(location.pathname);
     return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
@@ -25,6 +25,7 @@ $('#domainList').change(function(){
           }
           //select the active domain element
           $('#domainList').val(domainName);
+          $('#groupList').val(getGroupName());
         } else {
             $('#groupList').append('<option value="">None</option>');
         }
@@ -80,3 +81,4 @@ $("[id^='deleteGroupVar']").click(function (evtObj) {
 });
 
 $('#domainList').val(getParameterByName('domain'));
+$('#domainList').change();

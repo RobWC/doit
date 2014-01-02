@@ -7,6 +7,11 @@
           <i class="fa fa-th"></i>
         </span>
         <h5>Groups</h5>
+         <div class="buttons">
+          <button type="button" data-toggle="modal" data-target="#pageModal">
+            <i class="glyphicon glyphicon-plus"></i>
+          </button>
+        </div>
       </div>
       <div class="widget-content nopadding">
         <table class="table table-bordered table-striped table-hover">
@@ -14,13 +19,22 @@
             <tr>
               <th>Name</th>
               <th>Domain</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
           {% for value in groupList %}
-            <tr>
+            <tr data-value="{{ value[0] }}" data-domain-id="{{ value[3]}}" data-domain-name="{{ value[2]}}" data-id="{{ value[1] }}">
               <td>{{ value[0] }}</td>
-              <td>{{ value[1].title() }}</td>
+              <td>{{ value[2].title() }}</td>
+              <td style="text-align: right; width: 20%;">
+                <button id="editGroup" type="button">
+                  <i class="glyphicon glyphicon-edit"></i>
+                </button>
+                <button id="deleteGroup{{ value[1] }}" type="button">
+                  <i class="glyphicon glyphicon-minus"></i>
+                </button>
+              </td>
             </tr>
           {% endfor %}    
           </tbody>
@@ -28,4 +42,38 @@
       </div>
     </div>
   </div>
+{% endblock %}
+
+
+{% block modal_content %}
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h4 class="modal-title" id="modalLabel">Add New Group</h4>
+  </div>
+  <div class="modal-body">
+    <form role="form">
+      <div class="form-group">
+        <label for="groupName">Group Name</label>
+        <input type="text" class="form-control" id="groupName" placeholder="New Group Name">
+      </div>
+      <div class="form-group">
+        <label for="domainList">Domain List</label>
+        <select id="domainList" class="form-control">
+          {% for domain in domainList %}
+          <option value="{{ domain[0] }}">{{ domain[0].title() }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+    <button id="saveNewGroup" type="button" class="btn btn-primary">Save</button>
+  </div>
+{% endblock %}
+
+
+{% block pageScripts %}
+  <!-- scripts local to this page -->
+  <script type="text/javascript" src="js/pages/groups.js"></script>
 {% endblock %}

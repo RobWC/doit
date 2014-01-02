@@ -45,28 +45,32 @@ if __name__ == '__main__':
     domain = Domain('production')
     myDoit = DOIT(domain)
     hostList = myDoit.get_hosts_with_domain_name()
-    return render_template('hosts.j2',title="Hosts",hostList=hostList)
+    domainList = myDoit.get_domain_list()
+    return render_template('hosts.j2',title="Hosts",hostList=hostList,domainList=domainList)
 
   @app.route('/groups')
   def groups():
     domain = Domain('production')
     myDoit = DOIT(domain)
     groupList = myDoit.get_groups_with_domain_name()
-    return render_template('groups.j2',title="Groups",groupList=groupList)
+    domainList = myDoit.get_domain_list()
+    return render_template('groups.j2',title="Groups",groupList=groupList,domainList=domainList)
 
   @app.route('/group_vars')
   def group_vars():
     domain = Domain('production')
     myDoit = DOIT(domain)
     groupList = myDoit.get_groups_with_domain_name()
-    return render_template('group_vars.j2',title="Group Variables",groupList=groupList)
+    domainList = myDoit.get_domain_list()
+    return render_template('group_vars.j2',title="Group Variables",groupList=groupList,domainList=domainList)
 
   @app.route('/group_vars/<group>/list')
   def group_vars_by_group(group):
-    domain = Domain('')
+    domain_name = request.args.get('domain')
+    domain = Domain(domain_name)
     myDoit = DOIT(domain)
-    groupId = myDoit.get_group_by_name(group)
-    groupObj = Group(group,groupId)
+    domainList = myDoit.get_domain_list()
+    groupObj = myDoit.get_group_by_name(group)
     groupObj = myDoit.get_group_vars(groupObj)
     try:
       groupVars = groupObj.toDict()[group]['vars']
@@ -74,7 +78,7 @@ if __name__ == '__main__':
       groupVars = {}
 
     title = "{0} Variables".format(group)
-    return render_template('group_vars_list.j2',title=title,groupVars=groupVars)
+    return render_template('group_vars_list.j2',title=title,groupVars=groupVars,domainList=domainList,domain_name=domain_name)
 
   '''
   API for DOIT
@@ -110,34 +114,136 @@ if __name__ == '__main__':
   def api(type,name,action):
     reqMethod = request.method
     domain_name = request.args.get('domain')
+    group_name = request.args.get('group')
+    value = request.args.get('value')
     response = Response()
     #contentType = request.headers['content-type']
     domain = Domain(domain_name)
     myDoit = DOIT(domain)
     #content = request.json['content']
+
     if type == 'host':
       #handle host requests
+
+      #require domain be set
+      if domain_name == None:
+        abort(500)
+
       if action == 'create' and reqMethod == 'POST':
         response.data = json.dumps(myDoit.add_host(name).toDict())
       elif action == 'delete' and reqMethod == 'DELETE':
         response.data = json.dumps(myDoit.delete_host_by_name(name).toDict())
-      elif action == 'update' and reqMethod == 'PUT':
-        response.data = json.dumps(myDoit.update_host_by_name().toDict())
+      #elif action == 'update' and reqMethod == 'PUT':
+        #response.data = json.dumps(myDoit.update_host_by_name().toDict())
       elif action == 'list' and reqMethod == 'GET':
         response.data = json.dumps(myDoit.get_host_by_name(name).toDict())
       else:
         abort(500)
     elif type == 'group':
       #handle group requests
-      a = 1
+      if action == 'create' and reqMethod == 'POST':
+        response.data = json.dumps(myDoit.add_group(name).toDict())
+      elif action == 'delete' and reqMethod == 'DELETE':
+        response.data = json.dumps(myDoit.delete_group_by_name(name).toDict())
+      #elif action == 'update' and reqMethod == 'PUT':
+        #response.data = json.dumps(myDoit.update_host_by_name().toDict())
+      elif action == 'list' and reqMethod == 'GET':
+        response.data = json.dumps(myDoit.get_group_by_name(name).toDict())
+      else:
+        abort(500)
     elif type == 'domain':
       #handle domain requests
-      a = 1
+      if action == 'create' and reqMethod == 'POST':
+        response.data = json.dumps(myDoit.add_domain(name).toDict())
+      elif action == 'delete' and reqMethod == 'DELETE':
+        response.data = json.dumps(myDoit.delete_domain_by_name(name).toDict())
+      #elif action == 'update' and reqMethod == 'PUT':
+        #response.data = json.dumps(myDoit.update_host_by_name().toDict())
+      elif action == 'list' and reqMethod == 'GET':
+        response.data = json.dumps(myDoit.get_domain_by_name(name).toDict())
+      else:
+        abort(500)
     elif type == 'group_var':
+      # Add group var requires group query item
+      if group_name == None:
+        abort(500)
       #handle group_var requests
-      a = 1
+      if action == 'create' and reqMethod == 'POST':
+        response.data = json.dumps(myDoit.add_group_var(name,value,group_name).toDict())
+      elif action == 'delete' and reqMethod == 'DELETE':
+        response.data = json.dumps(myDoit.delete_group_var(name,group_name).toDict())
+      #elif action == 'update' and reqMethod == 'PUT':
+        #response.data = json.dumps(myDoit.update_host_by_name().toDict())
+      elif action == 'list' and reqMethod == 'GET':
+        response.data = json.dumps(myDoit.get_domain_by_name(name).toDict())
+      else:
+        abort(500)
+    elif type == 'host_var':
+      #add host var api
+      print 'host_var'
+
+    response.headers['Content-Type'] = 'application/json'
+    return response
+
+  #API calls need to be created in DOIT
+  @app.route('/api/1/<type>/<action>', methods = ['POST','DELETE','PUT','GET'])
+  def list_api(type,action):
+    reqMethod = request.method
+    domain_name = request.args.get('domain')
+    group_name = request.args.get('group')
+    response = Response()
+    #contentType = request.headers['content-type']
+    domain = Domain(domain_name)
+    myDoit = DOIT(domain)
+    if type == 'groups':
+      if action == 'list' and reqMethod =='GET':
+        response.data = json.dumps(myDoit.get_groups_by_domain_list())
+      else:
+        abort(500)
+    elif type == 'domains':
+      if action == 'list' and reqMethod =='GET':
+        response.data = json.dumps(myDoit.get_domain_list())
+      else:
+        abort(500)
+    elif type == 'hosts':
+      if action == 'list' and reqMethod =='GET':
+        response.data = json.dumps(myDoit.get_host_list())
+      else:
+        abort(500)
+    elif type == 'group_vars':
+      if action == 'list' and reqMethod =='GET':
+        response.data = json.dumps(myDoit.get_group_vars(group_name))
     else:
-      a = None
+      abort(500)
+
+    response.headers['Content-Type'] = 'application/json'
+    return response
+
+  @app.route('/api/1/ansible/<action>')
+  def ansible_api(action):
+    reqMethod = request.method
+    domain_name = request.args.get('domain')
+    host_name = request.args.get('host')
+    response = Response()
+    #contentType = request.headers['content-type']
+    domain = Domain(domain_name)
+    myDoit = DOIT(domain)
+
+    if action == 'list' and reqMethod == 'GET':
+      if domain_name == None:
+        abort(500)
+
+      response.data = json.dumps(myDoit.get_inventory())
+    
+    elif action == 'host' and reqMethod == 'GET':
+
+      if domain_name == None:
+        abort(500)
+
+      if host_name == None:
+        abort(500)
+
+      response.data = json.dumps(myDoit.get_host_info(host_name))
 
     response.headers['Content-Type'] = 'application/json'
     return response

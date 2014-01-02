@@ -18,9 +18,9 @@
           </thead>
           <tbody>
           {% for value in groupList %}
-            <tr>
-              <td><a href='/group_vars/{{ value[0]}}/list'>{{ value[0] }}</a></td>
-              <td>{{ value[1].title() }}</td>
+            <tr data-value="{{ value[0] }}" data-domain-id="{{ value[3]}}" data-domain-name="{{ value[2]}}" data-id="{{ value[1] }}">
+              <td><a href='/group_vars/{{ value[0]}}/list?domain={{ value[2] }}'>{{ value[0] }}</a></td>
+              <td>{{ value[2].title() }}</td>
             </tr>
           {% endfor %}    
           </tbody>
@@ -28,4 +28,12 @@
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block modal_content %}
+{% endblock %}
+
+{% block pageScripts %}
+  <!-- scripts local to this page -->
+  <script type="text/javascript" src="js/pages/group_vars.js"></script>
 {% endblock %}

@@ -107,7 +107,7 @@ class DOIT(object):
       dbLocation = self.args.db
     else:
       dbLocation = '/etc/ansible/hosts.db'
-    
+      
     try:
       if (os.path.exists(dbLocation)):
         self.db = sqlite3.connect(dbLocation)

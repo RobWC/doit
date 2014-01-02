@@ -7,6 +7,11 @@
           <i class="fa fa-th"></i>
         </span>
         <h5>Group Vars</h5>
+         <div class="buttons">
+          <button type="button" data-toggle="modal" data-target="#pageModal">
+            <i class="glyphicon glyphicon-plus"></i>
+          </button>
+        </div>
       </div>
       <div class="widget-content nopadding">
         <table class="table table-bordered table-striped table-hover">
@@ -18,9 +23,17 @@
           </thead>
           <tbody>
           {% for key,value in groupVars.iteritems() %}
-            <tr>
+            <tr data-value="{{ value }}" data-name="{{ key }}" data-domain-id="{{ value[3]}}" data-domain-name="{{ domain_name }}" data-id="{{ value[1] }}">
               <td>{{ key }}</td>
               <td>{{ value }}</td>
+              <td style="text-align: right; width: 20%;">
+                <button id="editGroupVar" type="button">
+                  <i class="glyphicon glyphicon-edit"></i>
+                </button>
+                <button id="deleteGroupVar{{ value[1] }}" type="button">
+                  <i class="glyphicon glyphicon-minus"></i>
+                </button>
+              </td>
             </tr>
           {% endfor %}    
           </tbody>
@@ -28,4 +41,47 @@
       </div>
     </div>
   </div>
+{% endblock %}
+
+
+{% block modal_content %}
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h4 class="modal-title" id="modalLabel">Add New Group Var</h4>
+  </div>
+  <div class="modal-body">
+    <form role="form">
+      <div class="form-group">
+        <label for="groupVarName">Group Var Name</label>
+        <input type="text" class="form-control" id="groupVarName" placeholder="New Group Var Name">
+      </div>
+      <div class="form-group">
+        <label for="groupVarValue">Group Var Value</label>
+        <input type="text" class="form-control" id="groupVarValue" placeholder="New Group Var Value">
+      </div>
+      <div class="form-group">
+        <label for="domainList">Domain List</label>
+        <select id="domainList" class="form-control">
+          {% for domain in domainList %}
+          <option value="{{ domain[0] }}">{{ domain[0].title() }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="groupList">Group List</label>
+        <select id="groupList" class="form-control">
+          <option>None</option>
+        </select>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+    <button id="saveNewGroupVar" type="button" class="btn btn-primary">Save</button>
+  </div>
+{% endblock %}
+
+{% block pageScripts %}
+  <!-- scripts local to this page -->
+  <script type="text/javascript" src="/js/pages/group_vars_list.js"></script>
 {% endblock %}

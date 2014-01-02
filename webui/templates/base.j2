@@ -65,17 +65,30 @@
         </div>
       </div>
     </div>
-    <script src="js/excanvas.min.js"></script>
-    <script src="js/jquery.min.js"></script>
-    <script src="js/jquery-ui.custom.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/jquery.flot.min.js"></script>
-    <script src="js/jquery.flot.resize.min.js"></script>
-    <script src="js/jquery.sparkline.min.js"></script>
-    <script src="js/fullcalendar.min.js"></script>
-    <script src="js/jquery.nicescroll.min.js"></script>
-    <script src="js/unicorn.js"></script>
-    <script src="js/unicorn.dashboard.js"></script>
+  
+    <!-- modal -->
+    <div class="modal fade" id="pageModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+        {% block modal_content %}
+        {% endblock %}
+        </div>
+      </div>
+    </div>
+
+    <script src="/js/excanvas.min.js"></script>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery-ui.custom.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/jquery.flot.min.js"></script>
+    <script src="/js/jquery.flot.resize.min.js"></script>
+    <script src="/js/jquery.sparkline.min.js"></script>
+    <script src="/js/fullcalendar.min.js"></script>
+    <script src="/js/jquery.nicescroll.min.js"></script>
+    <script src="/js/unicorn.js"></script>
+    <script src="/js/unicorn.dashboard.js"></script>
+    {% block pageScripts %}
+    {% endblock %}
   </body>
 </html>
 {% endautoescape %}

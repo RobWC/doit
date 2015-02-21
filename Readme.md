@@ -79,8 +79,8 @@ Returns ansible json format
 
 Return status codes:
 ---------------------
-200 Action Success
-304 No update made
-401 unauthoried: Api key is invalid
-404 object not found
-500 error processing request
+- 200 Action Success
+- 304 No update made
+- 401 unauthoried: Api key is invalid
+- 404 object not found
+- 500 error processing request
